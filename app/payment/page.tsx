@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,12 +9,12 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Navbar } from "@/components/navbar"
 import { format } from "date-fns"
-import { bookingsApi, paymentsApi, sessionsApi } from "@/lib/api"
+import { bookingsApi, paymentsApi, sessionsApi, Booking } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { AuthGuard } from "@/components/auth-guard"
 import { CreditCard, Wallet, Banknote } from "lucide-react"
 
-export default function PaymentPage() {
+function PaymentContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -27,7 +27,7 @@ export default function PaymentPage() {
   const { data: booking } = useQuery({
     queryKey: ["booking", bookingId],
     queryFn: () => bookingsApi.getMyBookings().then(bookings => 
-      bookings.find(b => b.id === Number(bookingId))
+      bookings.find((b: Booking) => b.id === Number(bookingId))
     ),
     enabled: !!bookingId,
   })
@@ -215,5 +215,21 @@ export default function PaymentPage() {
         </div>
       </div>
     </AuthGuard>
+  )
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="p-6 text-center text-gray-500">Loading payment details...</div>
+          </div>
+        </div>
+      </div>
+    }>
+      <PaymentContent />
+    </Suspense>
   )
 } 
