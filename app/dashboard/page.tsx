@@ -1,20 +1,18 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { format, parseISO, isValid } from "date-fns"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Navbar } from "@/components/navbar"
 import { SessionCard } from "@/components/session-card"
 import { BookingDialog } from "@/components/booking-dialog"
 import { SessionDetailsModal } from "@/components/session-details-modal"
 import { SessionCardSkeleton } from "@/components/loading-skeleton"
 import { sessionsApi, Session } from "@/lib/api"
-import { AuthGuard } from "@/components/auth-guard"
 import { Calendar } from "@/components/ui/calendar"
 
-function DashboardContent() {
+export default function DashboardPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dateParam = searchParams.get('sessionDate')
@@ -58,116 +56,105 @@ function DashboardContent() {
   }
 
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="container mx-auto px-4 py-8">
-          {/* Welcome Section */}
-          <div className="relative mb-12 overflow-hidden rounded-2xl bg-gradient-to-r from-[#10B981]/10 via-[#3B82F6]/10 to-[#10B981]/10 p-8">
-            <div className="absolute inset-0 bg-[url('/tennis-pattern.png')] opacity-5"></div>
-            <div className="relative">
-              <h1 className="text-3xl font-bold text-[#1F2937] mb-2">Welcome to TennisBook</h1>
-              <p className="text-[#4B5563]">Book your tennis sessions with professional coaches</p>
+    <div className="min-h-screen bg-gray-50">
+      <main className="container mx-auto px-4 py-8">
+        {/* Welcome Section */}
+        <div className="relative mb-12 overflow-hidden rounded-2xl bg-gradient-to-r from-[#10B981]/10 via-[#3B82F6]/10 to-[#10B981]/10 p-8">
+          <div className="absolute inset-0 bg-[url('/tennis-pattern.png')] opacity-5"></div>
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-12 w-12 rounded-full bg-[#10B981] flex items-center justify-center">
+                <span className="text-2xl">🎾</span>
+              </div>
+              <h1 className="text-4xl font-bold text-[#1F2937]">Welcome to TennisBook!</h1>
             </div>
-          </div>
-
-          {/* Calendar and Sessions Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Calendar */}
-            <div className="lg:col-span-1">
-              <Card className="border-[#E5E7EB]">
-                <CardHeader>
-                  <CardTitle className="text-xl text-[#1F2937]">Select Date</CardTitle>
-                  <CardDescription className="text-[#4B5563]">
-                    Choose a date to view available sessions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={handleDateSelect}
-                    className="rounded-md border-[#E5E7EB]"
-                  />
-                </CardContent>
-              </Card>
+            <p className="text-xl text-[#4B5563] max-w-2xl">
+              Find and book your perfect tennis session. Browse available sessions below or use the calendar to select a specific date.
+            </p>
+            <div className="mt-6 flex items-center gap-4 text-sm text-[#4B5563]">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-[#10B981]"></div>
+                <span>Professional Coaches</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-[#3B82F6]"></div>
+                <span>Premium Courts</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-[#10B981]"></div>
+                <span>Flexible Scheduling</span>
+              </div>
             </div>
-
-            {/* Sessions List */}
-            <div className="lg:col-span-2">
-              <Card className="border-[#E5E7EB]">
-                <CardHeader>
-                  <CardTitle className="text-xl text-[#1F2937]">
-                    Available Sessions
-                  </CardTitle>
-                  <CardDescription className="text-[#4B5563]">
-                    {format(selectedDate, "MMMM d, yyyy")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="space-y-4">
-                      {[1, 2, 3].map((i) => (
-                        <SessionCardSkeleton key={i} />
-                      ))}
-                    </div>
-                  ) : sessions && sessions.length > 0 ? (
-                    <div className="space-y-4">
-                      {sessions.map((session) => (
-                        <SessionCard
-                          key={session.id}
-                          session={session}
-                          onBook={() => handleBookSession(session)}
-                          onViewDetails={() => handleViewDetails(session)}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-[#4B5563]">No sessions available for this date</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </main>
-
-        {/* Booking Dialog */}
-        {selectedSession && (
-          <BookingDialog
-            session={selectedSession}
-            open={bookingDialogOpen}
-            onOpenChange={setBookingDialogOpen}
-          />
-        )}
-
-        {/* Session Details Modal */}
-        {detailsSession && (
-          <SessionDetailsModal
-            session={detailsSession}
-            open={detailsModalOpen}
-            onOpenChange={setDetailsModalOpen}
-            onBook={() => handleBookSession(detailsSession)}
-          />
-        )}
-      </div>
-    </AuthGuard>
-  )
-}
-
-export default function DashboardPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="p-6 text-center text-gray-500">Loading dashboard...</div>
           </div>
         </div>
-      </div>
-    }>
-      <DashboardContent />
-    </Suspense>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Calendar Section */}
+          <div className="md:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>Select Date</CardTitle>
+              </CardHeader>
+              <CardContent className="flex item-center w-100 justify-center">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={handleDateSelect}
+                  className="rounded-md border"
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sessions Section */}
+          <div className="md:col-span-3">
+            <h2 className="text-2xl font-bold mb-6">
+              Available Sessions for {format(selectedDate, "MMMM d, yyyy")}
+            </h2>
+
+            {isLoading ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <SessionCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : sessions && sessions.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {sessions?.map((session: Session) => (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    onBook={() => handleBookSession(session)}
+                    onViewDetails={() => handleViewDetails(session)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <p className="text-gray-500 text-lg">No sessions scheduled for this date.</p>
+                  <p className="text-gray-400 mt-2">Try selecting a different date to find available sessions!</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* Booking Dialog */}
+      <BookingDialog
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+        session={selectedSession}
+      />
+
+      {/* Session Details Modal */}
+      <SessionDetailsModal
+        open={detailsModalOpen}
+        onOpenChange={setDetailsModalOpen}
+        session={detailsSession}
+        onBook={handleBookSession}
+      />
+    </div>
   )
 }
