@@ -15,18 +15,25 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: (data: LoginFormData) => authApi.login(data.email, data.password),
     onSuccess: (response) => {
-      const { token } = response.data
-      setToken(token)
-      toast({
-        title: "Login successful",
-        description: "Welcome back! Redirecting to dashboard...",
-      })
-      router.push("/dashboard")
+      if (response && response.token) {
+        setToken(response.token)
+        toast({
+          title: "Login successful",
+          description: "Welcome back! Redirecting to dashboard...",
+        })
+        router.push("/dashboard")
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Invalid response from server",
+          variant: "destructive",
+        })
+      }
     },
     onError: (error: any) => {
       toast({
         title: "Login failed",
-        description: error.response?.data?.message || "Invalid credentials",
+        description: error.message || "Invalid credentials",
         variant: "destructive",
       })
     },

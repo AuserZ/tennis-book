@@ -7,30 +7,30 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative container mx-auto px-4 py-16 text-center overflow-hidden">
+      <section className="relative py-16 text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#10B981]/10 to-[#3B82F6]/10 rounded-3xl"></div>
         <div className="relative max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8 items-center mb-8">
             <div className="space-y-6">
               <img
-                src="/placeholder.svg?height=300&width=400"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Professional tennis player serving on court"
                 className="rounded-2xl shadow-2xl w-full h-64 object-cover border-2 border-[#E5E7EB]"
               />
               <img
-                src="/placeholder.svg?height=250&width=400"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Tennis coaching session with multiple players"
                 className="rounded-2xl shadow-xl w-full h-48 object-cover border-2 border-[#E5E7EB]"
               />
             </div>
             <div className="space-y-6">
               <img
-                src="/placeholder.svg?height=250&width=400"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Modern tennis facility with multiple courts"
                 className="rounded-2xl shadow-xl w-full h-48 object-cover border-2 border-[#E5E7EB]"
               />
               <img
-                src="/placeholder.svg?height=300&width=400"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Tennis players celebrating after a great match"
                 className="rounded-2xl shadow-2xl w-full h-64 object-cover border-2 border-[#E5E7EB]"
               />
@@ -57,81 +57,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Courts Section */}
-      <section className="container mx-auto px-4 py-16 bg-[#F9FAFB]">
-        <h2 className="text-3xl font-bold text-center mb-12 text-[#1F2937]">Our Premium Tennis Facilities</h2>
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <Card className="group hover:shadow-lg transition-shadow border-[#E5E7EB] bg-white">
-            <div className="relative overflow-hidden rounded-t-lg">
-              <img
-                src="/placeholder.svg?height=200&width=350"
-                alt="Clay court with professional lighting"
-                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute top-4 left-4 bg-[#10B981] text-white px-3 py-1 rounded-full text-sm font-medium">
-                Clay Court
-              </div>
-            </div>
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-lg mb-2 text-[#1F2937]">Professional Clay Courts</h3>
-              <p className="text-[#4B5563] mb-4">
-                Experience the authentic feel of professional tennis on our premium clay courts.
-              </p>
-              <div className="flex items-center space-x-2 text-sm text-[#4B5563]">
-                <MapPin className="w-4 h-4" />
-                <span>Courts 1-4, Main Facility</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="group hover:shadow-lg transition-shadow border-[#E5E7EB] bg-white">
-            <div className="relative overflow-hidden rounded-t-lg">
-              <img
-                src="/placeholder.svg?height=200&width=350"
-                alt="Hard court with modern amenities"
-                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute top-4 left-4 bg-[#3B82F6] text-white px-3 py-1 rounded-full text-sm font-medium">
-                Hard Court
-              </div>
-            </div>
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-lg mb-2 text-[#1F2937]">Championship Hard Courts</h3>
-              <p className="text-[#4B5563] mb-4">
-                Train like a pro on our tournament-standard hard courts with perfect bounce.
-              </p>
-              <div className="flex items-center space-x-2 text-sm text-[#4B5563]">
-                <MapPin className="w-4 h-4" />
-                <span>Courts 5-8, East Wing</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="group hover:shadow-lg transition-shadow border-[#E5E7EB] bg-white">
-            <div className="relative overflow-hidden rounded-t-lg">
-              <img
-                src="/placeholder.svg?height=200&width=350"
-                alt="Indoor court with climate control"
-                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute top-4 left-4 bg-[#F59E0B] text-white px-3 py-1 rounded-full text-sm font-medium">
-                Indoor
-              </div>
-            </div>
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-lg mb-2 text-[#1F2937]">Climate-Controlled Indoor</h3>
-              <p className="text-[#4B5563] mb-4">
-                Play year-round in our state-of-the-art indoor courts with perfect conditions.
-              </p>
-              <div className="flex items-center space-x-2 text-sm text-[#4B5563]">
-                <MapPin className="w-4 h-4" />
-                <span>Courts 9-12, Indoor Complex</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
       {/* How It Works Section */}
       <section className="container mx-auto px-4 py-16 bg-white">
         <h2 className="text-3xl font-bold text-center mb-12 text-[#1F2937]">How It Works</h2>
@@ -140,7 +65,7 @@ export default function HomePage() {
             <CardHeader>
               <div className="mx-auto mb-4">
                 <img
-                  src="/placeholder.svg?height=200&width=300"
+                  src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                   alt="Tennis player browsing sessions on mobile app"
                   className="w-full h-32 object-cover rounded-lg border border-[#E5E7EB]"
                 />
@@ -158,7 +83,7 @@ export default function HomePage() {
             <CardHeader>
               <div className="mx-auto mb-4">
                 <img
-                  src="/placeholder.svg?height=200&width=300"
+                  src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                   alt="Quick booking confirmation on smartphone"
                   className="w-full h-32 object-cover rounded-lg border border-[#E5E7EB]"
                 />
@@ -176,7 +101,7 @@ export default function HomePage() {
             <CardHeader>
               <div className="mx-auto mb-4">
                 <img
-                  src="/placeholder.svg?height=200&width=300"
+                  src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                   alt="Tennis player improving skills with professional coach"
                   className="w-full h-32 object-cover rounded-lg border border-[#E5E7EB]"
                 />
@@ -199,7 +124,7 @@ export default function HomePage() {
           <Card className="text-center group hover:shadow-lg transition-shadow border-[#E5E7EB] bg-white">
             <CardContent className="p-6">
               <img
-                src="/placeholder.svg?height=120&width=120"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Coach Sarah Johnson"
                 className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-[#10B981]"
               />
@@ -217,7 +142,7 @@ export default function HomePage() {
           <Card className="text-center group hover:shadow-lg transition-shadow border-[#E5E7EB] bg-white">
             <CardContent className="p-6">
               <img
-                src="/placeholder.svg?height=120&width=120"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Coach Mike Chen"
                 className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-[#10B981]"
               />
@@ -235,7 +160,7 @@ export default function HomePage() {
           <Card className="text-center group hover:shadow-lg transition-shadow border-[#E5E7EB] bg-white">
             <CardContent className="p-6">
               <img
-                src="/placeholder.svg?height=120&width=120"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Coach Emma Davis"
                 className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-[#10B981]"
               />
@@ -253,7 +178,7 @@ export default function HomePage() {
           <Card className="text-center group hover:shadow-lg transition-shadow border-[#E5E7EB] bg-white">
             <CardContent className="p-6">
               <img
-                src="/placeholder.svg?height=120&width=120"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Coach Alex Rodriguez"
                 className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-[#10B981]"
               />
@@ -319,18 +244,18 @@ export default function HomePage() {
 
             <div className="lg:order-first space-y-4">
               <img
-                src="/placeholder.svg?height=300&width=500"
+                src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                 alt="Happy tennis players celebrating on court"
                 className="w-full h-64 object-cover rounded-2xl shadow-xl border-2 border-[#E5E7EB]"
               />
               <div className="grid grid-cols-2 gap-4">
                 <img
-                  src="/placeholder.svg?height=150&width=240"
+                  src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                   alt="Tennis equipment and accessories"
                   className="w-full h-32 object-cover rounded-lg shadow-lg border border-[#E5E7EB]"
                 />
                 <img
-                  src="/placeholder.svg?height=150&width=240"
+                  src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
                   alt="Tennis court aerial view"
                   className="w-full h-32 object-cover rounded-lg shadow-lg border border-[#E5E7EB]"
                 />
@@ -345,7 +270,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
             <img
-              src="/placeholder.svg?height=300&width=800"
+              src="https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
               alt="Tennis academy with multiple courts and facilities"
               className="mx-auto rounded-2xl shadow-lg w-full h-48 object-cover border-2 border-[#E5E7EB]"
             />

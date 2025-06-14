@@ -1,6 +1,6 @@
 "use client"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   Dialog,
@@ -14,114 +14,101 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { bookingSchema, type BookingFormData } from "@/lib/validations"
-import { bookingsApi } from "@/lib/api"
+import { Session, bookingsApi } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
 interface BookingDialogProps {
-  session: {
-    id: string
-    coach: string
-    time: string
-    type: "private" | "public"
-    price: number
-  } | null
+  session: Session | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
 export function BookingDialog({ session, open, onOpenChange }: BookingDialogProps) {
+  const [participants, setParticipants] = useState(1)
   const { toast } = useToast()
   const queryClient = useQueryClient()
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema),
-    defaultValues: {
-      participants: session?.type === "private" ? 1 : 1,
-    },
-  })
-
-  const participants = watch("participants")
+  const router = useRouter()
 
   const bookingMutation = useMutation({
-    mutationFn: (data: BookingFormData) => bookingsApi.createBooking(session!.id, data.participants),
-    onSuccess: () => {
+    mutationFn: (data: { sessionId: number; participants: number }) =>
+      bookingsApi.create(data.sessionId, data.participants),
+    onSuccess: (response) => {
       toast({
-        title: "Booking confirmed!",
-        description: "Your tennis session has been booked successfully.",
+        title: "Booking successful",
+        description: "Please proceed to payment.",
       })
       queryClient.invalidateQueries({ queryKey: ["sessions"] })
       queryClient.invalidateQueries({ queryKey: ["my-bookings"] })
       onOpenChange(false)
-      reset()
+      router.push(`/payment?bookingId=${response.id}&sessionId=${session?.id}`)
     },
     onError: (error: any) => {
       toast({
         title: "Booking failed",
-        description: error.response?.data?.message || "Something went wrong",
+        description: error.message || "Something went wrong",
         variant: "destructive",
       })
     },
   })
 
-  const onSubmit = (data: BookingFormData) => {
-    bookingMutation.mutate(data)
-  }
-
   if (!session) return null
 
-  const total = session.price * participants
+  const availableSlots = session.maxParticipants - session.currentParticipants
+  const maxParticipants = Math.min(availableSlots, 4) // Limit to 4 participants per booking
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (session) {
+      bookingMutation.mutate({
+        sessionId: session.id,
+        participants,
+      })
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Book Tennis Session</DialogTitle>
+          <DialogTitle>Book Session</DialogTitle>
           <DialogDescription>Confirm your booking details below.</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Coach</Label>
-            <div className="text-sm font-medium">{session.coach}</div>
+            <div className="text-sm font-medium">{session.coach.name}</div>
           </div>
 
           <div className="space-y-2">
-            <Label>Time</Label>
-            <div className="text-sm font-medium">{session.time}</div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Session Type</Label>
-            <div className="text-sm font-medium capitalize">{session.type}</div>
-          </div>
-
-          {session.type === "public" && (
-            <div className="space-y-2">
-              <Label htmlFor="participants">Number of Participants</Label>
-              <Input
-                id="participants"
-                type="number"
-                min="1"
-                max="6"
-                {...register("participants", { valueAsNumber: true })}
-              />
-              {errors.participants && <p className="text-sm text-destructive">{errors.participants.message}</p>}
+            <Label>Available Slots</Label>
+            <div className="text-sm font-medium">
+              {availableSlots} of {session.maxParticipants} slots available
             </div>
-          )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="participants">Number of Participants</Label>
+            <Input
+              id="participants"
+              type="number"
+              min={1}
+              max={maxParticipants}
+              value={participants}
+              onChange={(e) => setParticipants(Number(e.target.value))}
+              className="mt-1"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Maximum {maxParticipants} participants per booking
+            </p>
+          </div>
 
           <Separator />
 
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Price per person:</span>
-              <span>${session.price}</span>
+              <span>${session.pricePerPerson}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Participants:</span>
@@ -129,7 +116,7 @@ export function BookingDialog({ session, open, onOpenChange }: BookingDialogProp
             </div>
             <div className="flex justify-between font-medium">
               <span>Total:</span>
-              <span>${total}</span>
+              <span>${session.pricePerPerson * participants}</span>
             </div>
           </div>
 
