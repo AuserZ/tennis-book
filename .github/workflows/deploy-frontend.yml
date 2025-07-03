@@ -42,7 +42,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key:      ${{ secrets.SSH_KEY }}
           script: |
-            cd /opt/app/tennis-book-frontend
+            sudo chown -R $USER:$USER /opt/app/tennis-book
+            cd /opt/app/tennis-book
             npm install --omit=dev
             sudo systemctl restart ${{ secrets.FRONTEND_SERVICE_NAME }}.service
             sudo systemctl status  ${{ secrets.FRONTEND_SERVICE_NAME }}.service --no-pager
