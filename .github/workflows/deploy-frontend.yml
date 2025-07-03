@@ -42,7 +42,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key:      ${{ secrets.SSH_KEY }}
           script: |
-            whoami
             ls -ld /opt/app/tennis-book
             ls -l /opt/app
             sudo chown -R ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} /opt/app/tennis-book
