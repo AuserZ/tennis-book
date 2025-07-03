@@ -1,7 +1,7 @@
 "use client"
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Session } from "@/lib/api"
+import { Session } from "@/lib/types/api"
 import { format } from "date-fns"
 import { formatTime } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -101,11 +101,6 @@ export function SessionDetailsModal({ session, open, onOpenChange, onBook }: Ses
                 {availableSlots} of {session.maxParticipants} slots available
               </p>
             </div>
-
-            <div>
-              <h4 className="font-medium mb-2">Price</h4>
-              <p className="text-sm">${session.pricePerPerson} per person</p>
-            </div>
           </div>
 
           {/* Description */}
@@ -114,24 +109,27 @@ export function SessionDetailsModal({ session, open, onOpenChange, onBook }: Ses
             <p className="text-sm">{session.description}</p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-2">
-            <button
-              onClick={() => onOpenChange(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
-            >
-              Close
-            </button>
-            <button
-              onClick={() => {
-                onBook(session)
-                onOpenChange(false)
-              }}
-              disabled={availableSlots === 0}
-              className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Book Now
-            </button>
+          {/* Action Buttons and Price */}
+          <div className="flex items-center justify-between gap-4 mt-10">
+            <div className="text-3xl font-extrabold text-green-600 leading-tight">Rp. {session.pricePerPerson} <span className="text-base font-normal text-gray-500">/ person</span></div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onOpenChange(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  onBook(session)
+                  onOpenChange(false)
+                }}
+                disabled={availableSlots === 0}
+                className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Book Now
+              </button>
+            </div>
           </div>
         </div>
       </DialogContent>

@@ -1,0 +1,48 @@
+name: Deploy Frontend
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Copy frontend files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host:   ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key:     ${{ secrets.SSH_KEY }}
+          source:  ".next,next.config.js,package.json,public"
+          target:  "/opt/app/tennis-book"
+      
+
+      - name: Restart frontend via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host:     ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key:      ${{ secrets.SSH_KEY }}
+          script: |
+            cd /opt/app/tennis-book-frontend
+            npm install --omit=dev
+            sudo systemctl restart ${{ secrets.FRONTEND_SERVICE_NAME }}.service
+            sudo systemctl status  ${{ secrets.FRONTEND_SERVICE_NAME }}.service --no-pager

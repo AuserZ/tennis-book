@@ -8,199 +8,155 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { format } from "date-fns"
-import { bookingsApi, paymentsApi, sessionsApi, Booking } from "@/lib/api"
+import { bookingsApi } from "@/lib/api/bookings"
 import { useToast } from "@/hooks/use-toast"
-import { CreditCard, Wallet, Banknote } from "lucide-react"
+import { Banknote } from "lucide-react"
+import { formatTime } from "@/lib/utils"
+import { usePaymentHandler, PaymentMethod } from "@/lib/utils/payment"
+import { Input } from "@/components/ui/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { paymentsApi } from "@/lib/api"
+import { useRef } from "react"
+import { PaymentModal } from "@/components/payment-modal"
 
 function PaymentContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const [paymentMethod, setPaymentMethod] = useState<string>("credit_card")
+  const bookingId = searchParams.get("bookingid")
 
-  const bookingId = searchParams.get("bookingId")
-  const sessionId = searchParams.get("sessionId")
-
-  // Fetch booking details
   const { data: booking } = useQuery({
     queryKey: ["booking", bookingId],
-    queryFn: () => bookingsApi.getMyBookings().then(bookings => 
-      bookings.find((b: Booking) => b.id === Number(bookingId))
-    ),
+    queryFn: () => bookingsApi.getByID(Number(bookingId)),
     enabled: !!bookingId,
   })
 
-  // Fetch session details
-  const { data: session } = useQuery({
-    queryKey: ["session", sessionId],
-    queryFn: () => sessionsApi.getById(Number(sessionId!)),
-    enabled: !!sessionId,
-  })
+  // Calculate total price based on session data and participants
+  const totalPrice = booking ? booking.totalPrice : 0
 
-  const paymentMutation = useMutation({
-    mutationFn: (data: { bookingId: number; paymentMethod: string }) =>
-      paymentsApi.create(data.bookingId, data.paymentMethod),
-    onSuccess: () => {
-      toast({
-        title: "Payment successful",
-        description: "Your session has been confirmed.",
-      })
-      router.push("/my-bookings")
+  // Mutation to create DOKU payment and get redirect URL
+  const dokuPaymentMutation = useMutation({
+    mutationFn: async () => {
+      if (!bookingId) {
+        throw new Error("Missing session information")
+      }
+      // Call backend to create DOKU payment and get redirect URL
+      const response = await paymentsApi.createDokuPayment(Number(bookingId))
+      // Assume response contains { redirectUrl: string }
+      return response
     },
-    onError: (error: any) => {
+    onSuccess: (data) => {
+      if (data?.redirectUrl) {
+        window.location.href = data.redirectUrl
+      } else {
+        toast({
+          title: "Payment Error",
+          description: "Failed to get DOKU payment URL.",
+          variant: "destructive",
+        })
+      }
+    },
+    onError: (error) => {
       toast({
-        title: "Payment failed",
+        title: "Payment Failed",
         description: error.message || "Something went wrong",
         variant: "destructive",
       })
     },
   })
 
-  const handlePayment = () => {
-    if (bookingId) {
-      paymentMutation.mutate({
-        bookingId: Number(bookingId),
-        paymentMethod,
-      })
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
+
+  const handlePayment = async () => {
+    try {
+      const response = await dokuPaymentMutation.mutateAsync();
+      console.log(response);
+      if (response.response.payment.url) {
+        setPaymentUrl(response.response.payment.url);
+        setPaymentModalOpen(true);
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 
-  if (!booking || !session) {
+  if (!booking) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-center text-gray-500">Loading payment details...</p>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto py-8">
+        <h1 className="text-2xl font-bold mb-4">Invalid Booking</h1>
+        <p>Please select a valid booking to book.</p>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <Card className="border-[#E5E7EB] bg-white">
-          <CardHeader>
-            <CardTitle className="text-2xl text-[#1F2937]">Payment Confirmation</CardTitle>
+    <div className="container mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-4">Payment</h1>
+      <div>
+        <Card className="p-6 w-full">
+          <CardHeader className="px-0 pt-0 flex flex-row items-center justify-between">
+            <CardTitle className="text-xl font-semibold">Session Summary</CardTitle>
+            <Button variant="outline" className="text-sm px-3 py-1 h-auto" onClick={() => router.push(`/payment?bookingId=${booking.id}`)}>Edit</Button>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Session Details */}
-            <div className="space-y-4 p-4 bg-[#F9FAFB] rounded-lg">
-              <h3 className="font-semibold text-[#1F2937]">Session Details</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-[#4B5563]">Coach</p>
-                  <p className="font-medium text-[#1F2937]">{session.coach.name}</p>
-                </div>
-                <div>
-                  <p className="text-[#4B5563]">Date & Time</p>
-                  <p className="font-medium text-[#1F2937]">
-                    {format(new Date(session.date), "MMM d, yyyy")} at{" "}
-                    {format(new Date(session.startTime), "h:mm a")}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[#4B5563]">Location</p>
-                  <p className="font-medium text-[#1F2937]">{session.place}</p>
-                </div>
-                <div>
-                  <p className="text-[#4B5563]">Total Amount</p>
-                  <p className="font-medium text-[#10B981] text-lg">${booking.totalPrice}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Method Selection */}
+          <CardContent className="px-0">
             <div className="space-y-4">
-              <Label className="text-[#1F2937]">Select Payment Method</Label>
-              <RadioGroup
-                value={paymentMethod}
-                onValueChange={setPaymentMethod}
-                className="grid grid-cols-3 gap-4"
-              >
-                <div>
-                  <RadioGroupItem
-                    value="credit_card"
-                    id="credit_card"
-                    className="peer sr-only"
+              {booking && (
+                <div className="flex items-start space-x-4">
+                  <img
+                    src={
+                      // session.tennisField.photoUrl || Temp since url is 404
+                      "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
+                    }
+                    alt={`${booking.session.tennisField.name} tennis court`}
+                    className="w-24 h-24 object-cover rounded-md"
                   />
-                  <Label
-                    htmlFor="credit_card"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-[#E5E7EB] bg-white p-4 hover:bg-[#F9FAFB] peer-data-[state=checked]:border-[#10B981] [&:has([data-state=checked])]:border-[#10B981] cursor-pointer"
-                  >
-                    <CreditCard className="mb-2 h-6 w-6 text-[#4B5563]" />
-                    <span className="text-sm font-medium text-[#1F2937]">Credit Card</span>
-                  </Label>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{booking.session.coach.name} - {booking.session.tennisField.name}</h3>
+                    <p className="text-sm text-gray-500">{format(new Date(booking.session.date), "PPP")} at {formatTime(booking.session.startTime)}</p>
+                    <p className="text-sm text-gray-500">Participants: {booking.participants}</p>
+                    <p className="text-lg font-semibold">Rp. {booking.session.pricePerPerson * Number(booking.participants)}</p>
+                  </div>
                 </div>
-                <div>
-                  <RadioGroupItem
-                    value="debit_card"
-                    id="debit_card"
-                    className="peer sr-only"
-                  />
-                  <Label
-                    htmlFor="debit_card"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-[#E5E7EB] bg-white p-4 hover:bg-[#F9FAFB] peer-data-[state=checked]:border-[#10B981] [&:has([data-state=checked])]:border-[#10B981] cursor-pointer"
-                  >
-                    <Banknote className="mb-2 h-6 w-6 text-[#4B5563]" />
-                    <span className="text-sm font-medium text-[#1F2937]">Debit Card</span>
-                  </Label>
+              )}
+              <div className="border-t pt-4 mt-4">
+                <div className="flex justify-between items-center text-lg font-semibold">
+                  <span>Total:</span>
+                  <span>${totalPrice}</span>
                 </div>
-                <div>
-                  <RadioGroupItem
-                    value="e_wallet"
-                    id="e_wallet"
-                    className="peer sr-only"
-                  />
-                  <Label
-                    htmlFor="e_wallet"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-[#E5E7EB] bg-white p-4 hover:bg-[#F9FAFB] peer-data-[state=checked]:border-[#10B981] [&:has([data-state=checked])]:border-[#10B981] cursor-pointer"
-                  >
-                    <Wallet className="mb-2 h-6 w-6 text-[#4B5563]" />
-                    <span className="text-sm font-medium text-[#1F2937]">E-Wallet</span>
-                  </Label>
+                <div className="flex items-center space-x-2 mt-4 text-sm text-gray-500">
+                  <Banknote className="w-4 h-4" />
+                  <span>Do you have a promocode?</span>
                 </div>
-              </RadioGroup>
-            </div>
-
-            {/* Payment Summary */}
-            <div className="space-y-2 p-4 bg-[#F9FAFB] rounded-lg">
-              <h3 className="font-semibold text-[#1F2937]">Payment Summary</h3>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#4B5563]">Session Price</span>
-                <span className="text-[#1F2937]">${session.pricePerPerson}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#4B5563]">Number of Participants</span>
-                <span className="text-[#1F2937]">{booking.totalPrice / session.pricePerPerson}</span>
-              </div>
-              <div className="border-t border-[#E5E7EB] my-2"></div>
-              <div className="flex justify-between font-medium">
-                <span className="text-[#1F2937]">Total Amount</span>
-                <span className="text-[#10B981]">${booking.totalPrice}</span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end space-x-4">
-              <Button
-                variant="outline"
-                onClick={() => router.back()}
-                className="border-[#E5E7EB] hover:bg-[#F9FAFB] text-[#1F2937]"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handlePayment}
-                disabled={paymentMutation.isPending}
-                className="bg-[#10B981] hover:bg-[#10B981]/90 text-white"
-              >
-                {paymentMutation.isPending ? "Processing..." : "Confirm Payment"}
-              </Button>
             </div>
           </CardContent>
         </Card>
+        <Button
+          type="button"
+          onClick={handlePayment}
+          disabled={dokuPaymentMutation.isPending}
+          className="w-full bg-[#10B981] hover:bg-[#10B981]/90 text-white mt-8"
+        >
+          {dokuPaymentMutation.isPending ? "Processing..." : "Pay with DOKU"}
+        </Button>
+        <p className="text-xs text-gray-500 mt-4 text-center">100% secure payment via DOKU</p>
+        {paymentUrl && (
+          <PaymentModal open={paymentModalOpen} onOpenChange={setPaymentModalOpen} paymentUrl={paymentUrl} />
+        )}
       </div>
     </div>
   )

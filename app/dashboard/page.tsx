@@ -9,8 +9,11 @@ import { SessionCard } from "@/components/session-card"
 import { BookingDialog } from "@/components/booking-dialog"
 import { SessionDetailsModal } from "@/components/session-details-modal"
 import { SessionCardSkeleton } from "@/components/loading-skeleton"
-import { sessionsApi, Session } from "@/lib/api"
+import { sessionsApi } from "@/lib/api/sessions"
+import { Session } from "@/lib/types/api"
 import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -24,15 +27,16 @@ export default function DashboardPage() {
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false)
   const [detailsModalOpen, setDetailsModalOpen] = useState(false)
   const [detailsSession, setDetailsSession] = useState<Session | null>(null)
+  const [calendarOpen, setCalendarOpen] = useState(false)
 
   // Fetch sessions based on selected date
   const { data: sessions, isLoading } = useQuery<Session[]> ({
-    queryKey: ["sessions", format(selectedDate, 'yyyy-MM-dd')], // Include date in query key
-    queryFn: () => sessionsApi.getByDate(format(selectedDate, 'yyyy-MM-dd')), // Call new API function
-    enabled: isValid(selectedDate), // Only fetch if date is valid
-    refetchOnWindowFocus: false, // Disable refetching on window focus
-    gcTime: 1000 * 60 * 5, // Keep data in cache for 5 minutes
-    staleTime: 1000 * 60, // Consider data fresh for 1 minute
+    queryKey: ["sessions", format(selectedDate, 'yyyy-MM-dd')],
+    queryFn: () => sessionsApi.getPublicSession("Public",format(selectedDate, 'yyyy-MM-dd')),
+    enabled: isValid(selectedDate),
+    refetchOnWindowFocus: false,
+    gcTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60,
   })
 
   const handleBookSession = (session: Session) => {
@@ -96,12 +100,40 @@ export default function DashboardPage() {
                 <CardTitle>Select Date</CardTitle>
               </CardHeader>
               <CardContent className="flex item-center w-100 justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleDateSelect}
-                  className="rounded-md border"
-                />
+                {/* Mobile: Button triggers popover calendar */}
+                <div className="block md:hidden w-full">
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setCalendarOpen(true)}
+                      >
+                        {selectedDate ? format(selectedDate, "PPP") : "Select Date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="p-0 w-auto">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={date => {
+                          handleDateSelect(date)
+                          setCalendarOpen(false)
+                        }}
+                        className="rounded-md border"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                {/* Desktop: Inline calendar */}
+                <div className="hidden md:block">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateSelect}
+                    className="rounded-md border"
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -142,11 +174,13 @@ export default function DashboardPage() {
       </main>
 
       {/* Booking Dialog */}
-      <BookingDialog
-        open={bookingDialogOpen}
-        onOpenChange={setBookingDialogOpen}
-        session={selectedSession}
-      />
+      {selectedSession && (
+        <BookingDialog
+          isOpen={bookingDialogOpen}
+          onOpenChange={setBookingDialogOpen}
+          session={selectedSession}
+        />
+      )}
 
       {/* Session Details Modal */}
       <SessionDetailsModal

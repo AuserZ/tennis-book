@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useMutation } from "@tanstack/react-query"
 import { AuthForm } from "@/components/auth-form"
-import { authApi } from "@/lib/api"
+import { authApi } from "@/lib/api/auth"
 import { useToast } from "@/hooks/use-toast"
 import type { RegisterFormData } from "@/lib/validations"
 

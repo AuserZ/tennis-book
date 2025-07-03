@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Session } from "@/lib/api"
+import { Session } from "@/lib/types/api"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -19,9 +19,9 @@ export function SessionCard({ session, onBook, onViewDetails }: SessionCardProps
   const availableSlots = session.maxParticipants - session.currentParticipants
 
   const getAvailabilityText = () => {
-    if (availableSlots === 0 || (session.type=='Private' && session.currentParticipants > 0)) {
+    if (availableSlots === 0 || (session.type == 'Private' && session.currentParticipants > 0)) {
       return { text: 'Full booked', colorClass: 'text-destructive' }
-    } else if (availableSlots <= 2 && session.type !='Private') {
+    } else if (availableSlots <= 2 && session.type != 'Private') {
       return { text: `${availableSlots} slots left!`, colorClass: 'text-[#F59E0B]' }
     } else {
       return { text: `${availableSlots} of ${session.maxParticipants} slots available`, colorClass: 'text-[#10B981]' }
@@ -38,7 +38,7 @@ export function SessionCard({ session, onBook, onViewDetails }: SessionCardProps
           src={
             // session.tennisField.photoUrl || Temp since url is 404 
             "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&h=600&fit=crop"
-            }
+          }
           alt={`${session.tennisField.name} tennis court`}
           className="w-full h-full object-cover"
         />
@@ -64,12 +64,19 @@ export function SessionCard({ session, onBook, onViewDetails }: SessionCardProps
               <p className="text-sm text-[#4B5563]">Former professional player with 10+ years coaching experience</p>
             </div>
           </div>
-          <Badge variant={session.type === 'private' ? 'default' : 'secondary'}>
+          {/* Colored Badge */}
+          <Badge
+            className={
+              session.type.toLowerCase() === 'public'
+                ? 'bg-green-100 text-green-800 border-green-200'
+                : 'bg-blue-100 text-blue-800 border-blue-200'
+            }
+          >
             {session.type.charAt(0).toUpperCase() + session.type.slice(1)}
           </Badge>
         </div>
 
-        {/* Details Section: Time, Location, Price, Availability, Description */}
+        {/* Details Section: Time, Location, Availability, Description */}
         <div className="space-y-3">
           {/* Time */}
           <div className="flex items-center text-sm text-[#4B5563]">
@@ -85,12 +92,11 @@ export function SessionCard({ session, onBook, onViewDetails }: SessionCardProps
             <span>{session.tennisField.location}</span>
           </div>
 
-          {/* Price and Availability */}
-          <div className="flex justify-between items-center">
-            <p className="font-semibold text-lg text-[#10B981]">${session.pricePerPerson} <span className="text-sm font-normal text-[#4B5563]">per person</span></p>
-            <p className={`text-sm font-medium ${availabilityInfo.colorClass}`}>
+          {/* Slot Availability (color-coded) */}
+          <div>
+            <span className={`text-sm font-medium ${availabilityInfo.colorClass}`}>
               {availabilityInfo.text}
-            </p>
+            </span>
           </div>
 
           {/* Description */}
@@ -98,21 +104,27 @@ export function SessionCard({ session, onBook, onViewDetails }: SessionCardProps
         </div>
       </CardContent>
 
-      <CardFooter className="p-6 pt-0 flex gap-2">
-        <Button
-          variant="outline"
-          className="flex-1 border-[#E5E7EB] text-[#1F2937] hover:bg-[#F9FAFB] hover:text-[#1F2937]"
-          onClick={() => onViewDetails(session)}
-        >
-          <Info className="w-4 h-4 mr-2" /> View Details
-        </Button>
-        <Button
-          className={`flex-1 ${availableSlots === 0 ? 'bg-destructive text-destructive-foreground' : 'bg-[#10B981] hover:bg-[#10B981]/90 text-white'}`}
-          onClick={() => onBook(session)}
-          disabled={availableSlots === 0}
-        >
-          {availableSlots === 0 ? 'Full' : 'Book Now'}
-        </Button>
+      <CardFooter className="p-6 pt-0 flex flex-col md:flex-row md:items-center gap-2 md:gap-4 w-full">
+        <div className="flex flex-col items-end min-w-[120px] w-full md:w-auto mb-2 md:mb-0">
+          <div className="text-3xl font-extrabold text-green-600 leading-tight">Rp. {session.pricePerPerson}
+            <span className="text-xs text-gray-500">/ person</span></div>
+        </div>
+        <div className="flex gap-2 w-full md:w-auto md:flex-1 md:justify-end">
+          <Button
+            variant="outline"
+            className="flex-1 border-[#E5E7EB] text-[#1F2937] hover:bg-[#F9FAFB] hover:text-[#1F2937]"
+            onClick={() => onViewDetails(session)}
+          >
+            <Info className="w-4 h-4 mr-2" /> View Details
+          </Button>
+          <Button
+            className={`flex-1 ${availableSlots === 0 ? 'bg-destructive text-destructive-foreground' : 'bg-[#10B981] hover:bg-[#10B981]/90 text-white'}`}
+            onClick={() => onBook(session)}
+            disabled={availableSlots === 0}
+          >
+            {availableSlots === 0 ? 'Full' : 'Book Now'}
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   )
