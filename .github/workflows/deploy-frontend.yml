@@ -47,6 +47,6 @@ jobs:
             sudo chown -R ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} /opt/app/tennis-book
             ls -ld /opt/app/tennis-book
             cd /opt/app/tennis-book
-            npm install --omit=dev
+            npm install react@18 react-dom@18
             sudo systemctl restart ${{ secrets.FRONTEND_SERVICE_NAME }}.service
             sudo systemctl status  ${{ secrets.FRONTEND_SERVICE_NAME }}.service --no-pager
