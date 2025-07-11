@@ -5,31 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { format } from "date-fns"
 import { bookingsApi } from "@/lib/api/bookings"
 import { useToast } from "@/hooks/use-toast"
 import { Banknote } from "lucide-react"
 import { formatTime } from "@/lib/utils"
-import { usePaymentHandler, PaymentMethod } from "@/lib/utils/payment"
-import { Input } from "@/components/ui/input"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import { paymentsApi } from "@/lib/api"
-import { useRef } from "react"
 import { PaymentModal } from "@/components/payment-modal"
 
 function PaymentContent() {

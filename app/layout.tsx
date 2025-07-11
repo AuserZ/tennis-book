@@ -38,10 +38,7 @@ export default function RootLayout({
         <Suspense fallback={<LoadingFallback />}>
           <Providers>
             <div className="min-h-screen bg-gray-50">
-              <Navbar />
-              <AuthGuard>
-                {children}
-              </AuthGuard>
+              {children}
             </div>
             <Toaster />
           </Providers>

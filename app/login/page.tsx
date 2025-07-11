@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import type { LoginFormData } from "@/lib/validations"
 
 export default function LoginPage() {
+  console.log("LoginPage")
   const router = useRouter()
   const { toast } = useToast()
 
