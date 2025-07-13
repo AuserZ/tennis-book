@@ -1,5 +1,11 @@
 import { AuthGuard } from "@/components/auth-guard";
+import { Navbar } from "@/components/navbar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <AuthGuard>{children}</AuthGuard>;
+  return (
+    <div>
+      <Navbar />
+      <AuthGuard>{children}</AuthGuard>
+    </div>
+  );
 }

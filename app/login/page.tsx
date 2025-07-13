@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast"
 import type { LoginFormData } from "@/lib/validations"
 
 export default function LoginPage() {
-  console.log("LoginPage")
   const router = useRouter()
   const { toast } = useToast()
 
@@ -22,7 +21,7 @@ export default function LoginPage() {
           title: "Login successful",
           description: "Welcome back! Redirecting to dashboard...",
         })
-        router.push("/dashboard")
+        router.push("/")
       } else {
         toast({
           title: "Login failed",

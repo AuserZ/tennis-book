@@ -92,23 +92,24 @@ export function SessionCard({ session, onBook, onViewDetails }: SessionCardProps
             <span>{session.tennisField.location}</span>
           </div>
 
-          {/* Slot Availability (color-coded) */}
-          <div>
-            <span className={`text-sm font-medium ${availabilityInfo.colorClass}`}>
-              {availabilityInfo.text}
-            </span>
-          </div>
 
           {/* Description */}
-          <p className="text-sm text-[#4B5563] line-clamp-2">{session.description}</p>
+          {/* <p className="text-sm text-[#4B5563] line-clamp-2">{session.description}</p> */}
+        </div>
+        {/* Slot Availability (color-coded) */}
+        <div>
+          <span className={`text-sm font-medium ${availabilityInfo.colorClass}`}>
+            {availabilityInfo.text}
+          </span>
+        </div>
+
+        <div className="flex flex-col items-end min-w-[120px] w-full md:w-auto md:mb-0">
+          <div className="text-3xl font-extrabold text-green-600 leading-tight">Rp. {session.pricePerPerson.toLocaleString("id-ID")}
+            <span className="text-xs text-gray-500">/ person</span></div>
         </div>
       </CardContent>
 
       <CardFooter className="p-6 pt-0 flex flex-col md:flex-row md:items-center gap-2 md:gap-4 w-full">
-        <div className="flex flex-col items-end min-w-[120px] w-full md:w-auto mb-2 md:mb-0">
-          <div className="text-3xl font-extrabold text-green-600 leading-tight">Rp. {session.pricePerPerson}
-            <span className="text-xs text-gray-500">/ person</span></div>
-        </div>
         <div className="flex gap-2 w-full md:w-auto md:flex-1 md:justify-end">
           <Button
             variant="outline"
