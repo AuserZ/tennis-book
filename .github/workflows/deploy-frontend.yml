@@ -7,46 +7,19 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install dependencies
-        run: npm install react@18 react-dom@18
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: Copy frontend files to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host:   ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key:     ${{ secrets.SSH_KEY }}
-          source:  ".next,next.config.js,package.json,public"
-          target:  "/opt/app/tennis-book"
-      
-
-      - name: Restart frontend via SSH
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
           host:     ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key:      ${{ secrets.SSH_KEY }}
           script: |
-            ls -ld /opt/app/tennis-book
-            ls -l /opt/app
-            sudo chown -R ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} /opt/app/tennis-book
-            ls -ld /opt/app/tennis-book
-            cd /opt/app/tennis-book
-            npm install react@18 react-dom@18
+            cd /apps/tennis-book
+            git pull
+            npm install
+            npm run build
             sudo systemctl restart ${{ secrets.FRONTEND_SERVICE_NAME }}.service
-            sudo systemctl status  ${{ secrets.FRONTEND_SERVICE_NAME }}.service --no-pager
+            sudo systemctl status ${{ secrets.FRONTEND_SERVICE_NAME }}.service --no-pager
