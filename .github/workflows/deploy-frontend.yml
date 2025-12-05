@@ -17,7 +17,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key:      ${{ secrets.SSH_KEY }}
           script: |
-            cd /apps/tennis-book
+            cd /home/mzakbar/apps/tennis-book
             git pull
             npm install
             npm run build
