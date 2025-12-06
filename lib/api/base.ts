@@ -1,7 +1,5 @@
 // API Base URL
-// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://tennis-book-service.onrender.com/api';
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.tennisbook.mz-akbar.online/api';
-
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 // Helper function for API calls
 export const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('token');

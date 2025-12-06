@@ -40,6 +40,7 @@ export default function LoginPage() {
   })
 
   const handleSubmit = (data: LoginFormData) => {
+    console.log(data)
     loginMutation.mutate(data)
   }
 
