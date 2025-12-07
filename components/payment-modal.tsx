@@ -7,16 +7,19 @@ interface PaymentModalProps {
 }
 
 export function PaymentModal({ open, onOpenChange, paymentUrl }: PaymentModalProps) {
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl w-full h-[80vh] bg-white flex flex-col">
-                <iframe
-                    src={paymentUrl}
-                    title="DOKU Payment"
-                    className="w-full h-full border-0 rounded"
-                    allowFullScreen
-                />
-            </DialogContent>
-        </Dialog>
-    );
-} 
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl w-full h-[80vh] bg-white flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Complete Payment</DialogTitle>
+        </DialogHeader>
+        <iframe
+          src={paymentUrl}
+          title="DOKU Payment"
+          className="w-full h-full border-0 rounded"
+          allowFullScreen
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}

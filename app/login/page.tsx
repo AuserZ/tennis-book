@@ -21,7 +21,7 @@ export default function LoginPage() {
           title: "Login successful",
           description: "Welcome back! Redirecting to dashboard...",
         })
-        router.push("/")
+        router.push("/dashboard")
       } else {
         toast({
           title: "Login failed",
@@ -40,7 +40,6 @@ export default function LoginPage() {
   })
 
   const handleSubmit = (data: LoginFormData) => {
-    console.log(data)
     loginMutation.mutate(data)
   }
 

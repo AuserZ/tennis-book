@@ -9,10 +9,12 @@ import { BookingCardSkeleton } from "@/components/loading-skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { Calendar, Clock, User, Users, X } from "lucide-react"
 import { bookingsApi } from "@/lib/api/bookings"
+import { useRouter } from "next/navigation";
 
 export default function MyBookingsPage() {
   const { toast } = useToast()
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   // Mock query - replace with actual API call
   const { data: bookings, isLoading } = useQuery({
@@ -96,8 +98,8 @@ export default function MyBookingsPage() {
                       <div className="text-2xl font-bold text-green-600">Rp {Number(booking.totalPrice).toLocaleString('id-ID')}</div>
                       <div className="text-xs text-gray-400">Total Amount</div>
                     </div>
-                    <Button variant="outline" className="w-32 border-green-600 text-green-700 hover:bg-green-50">
-                      View Details
+                    <Button variant="outline" onClick={() => router.push(`/payment?bookingid=${booking.id}`)} className="w-32 border-green-600 text-green-700 hover:bg-green-50">
+                      Pay Now
                     </Button>
                   </div>
                 </div>

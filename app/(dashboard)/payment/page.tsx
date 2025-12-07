@@ -36,19 +36,25 @@ function PaymentContent() {
       }
       // Call backend to create DOKU payment and get redirect URL
       const response = await paymentsApi.createDokuPayment(Number(bookingId))
-      // Assume response contains { redirectUrl: string }
       return response
     },
     onSuccess: (data) => {
-      if (data?.redirectUrl) {
-        window.location.href = data.redirectUrl
-      } else {
-        toast({
-          title: "Payment Error",
-          description: "Failed to get DOKU payment URL.",
-          variant: "destructive",
-        })
+      const url =
+        (data && (data as any).redirectUrl) ||
+        (data && (data as any).response?.payment?.url) ||
+        (data && (data as any).payment?.url)
+
+      if (url) {
+        setPaymentUrl(url as string)
+        setPaymentModalOpen(true)
+        return
       }
+
+      toast({
+        title: "Payment Error",
+        description: "Failed to get DOKU payment URL.",
+        variant: "destructive",
+      })
     },
     onError: (error) => {
       toast({
@@ -64,14 +70,9 @@ function PaymentContent() {
 
   const handlePayment = async () => {
     try {
-      const response = await dokuPaymentMutation.mutateAsync();
-      console.log(response);
-      if (response.response.payment.url) {
-        setPaymentUrl(response.response.payment.url);
-        setPaymentModalOpen(true);
-      }
+      await dokuPaymentMutation.mutateAsync()
     } catch (e) {
-      console.log(e);
+      console.log(e)
     }
   }
 
@@ -91,7 +92,7 @@ function PaymentContent() {
         <Card className="p-6 w-full">
           <CardHeader className="px-0 pt-0 flex flex-row items-center justify-between">
             <CardTitle className="text-xl font-semibold">Session Summary</CardTitle>
-            <Button variant="outline" className="text-sm px-3 py-1 h-auto" onClick={() => router.push(`/payment?bookingId=${booking.id}`)}>Edit</Button>
+            <Button variant="outline" className="text-sm px-3 py-1 h-auto" onClick={() => router.push(`/payment?bookingid=${booking.id}`)}>Edit</Button>
           </CardHeader>
           <CardContent className="px-0">
             <div className="space-y-4">
@@ -116,11 +117,7 @@ function PaymentContent() {
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between items-center text-lg font-semibold">
                   <span>Total:</span>
-                  <span>${totalPrice}</span>
-                </div>
-                <div className="flex items-center space-x-2 mt-4 text-sm text-gray-500">
-                  <Banknote className="w-4 h-4" />
-                  <span>Do you have a promocode?</span>
+                  <span>Rp. {totalPrice}</span>
                 </div>
               </div>
             </div>
